@@ -1,0 +1,1197 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "let message = '';\nlet status = 'SUCCESS';\n\nlet itemCount = Array.isArray($items()) ? $items().length : 1;\n\nif ($json.error && $json.error !== '')  {\n  message = 'Circuits updated';\n  itemCount = 0;\n} else {\n  message = 'Circuits inserted';\n}\n\nreturn [\n  {\n    json: {\n      process_name: 'f1_circuits',\n      rows_inserted: itemCount,\n      status,\n      message,\n      ts: new Date().toISOString(),\n    },\n  },\n];\n"
+      },
+      "name": "Build Log - Circuits",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -544
+      ],
+      "id": "7e0f070b-8baf-4b2d-b723-f2e57197bdd1"
+    },
+    {
+      "parameters": {
+        "functionCode": "let message = '';\nlet status = 'SUCCESS';\n\nlet itemCount = Array.isArray($items()) ? $items().length : 1;\n\nif ($json.error && $json.error !== '')  {\n  message = 'Drivers updated';\n  itemCount = 0;\n} else {\n  message = 'Drivers inserted';\n}\n\nreturn [\n  {\n    json: {\n      process_name: 'f1_drivers',\n      rows_inserted: itemCount,\n      status,\n      message,\n      ts: new Date().toISOString(),\n    },\n  },\n];\n"
+      },
+      "name": "Build Log - Drivers",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -320
+      ],
+      "id": "5ce271da-3035-4a8c-bcc3-a841cf295aee"
+    },
+    {
+      "parameters": {
+        "functionCode": "let message = '';\nlet status = 'SUCCESS';\n\nlet itemCount = Array.isArray($items()) ? $items().length : 1;\n\nif ($json.error && $json.error !== '')  {\n  message = 'Races updated';\n  itemCount = 0;\n} else {\n  message = 'Races inserted';\n}\n\nreturn [\n  {\n    json: {\n      process_name: 'f1_races',\n      rows_inserted: itemCount,\n      status,\n      message,\n      ts: new Date().toISOString(),\n    },\n  },\n];\n"
+      },
+      "name": "Build Log - Races",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -80
+      ],
+      "id": "783b145c-7524-4c79-ae39-72d6aec8a9b0"
+    },
+    {
+      "parameters": {
+        "functionCode": "let message = '';\nlet status = 'SUCCESS';\n\nlet itemCount = Array.isArray($items()) ? $items().length : 1;\n\nif ($json.error && $json.error !== '')  {\n  message = 'Laps updated';\n  itemCount = 0;\n} else {\n  message = 'Laps inserted';\n}\n\nreturn [\n  {\n    json: {\n      process_name: 'f1_laps',\n      rows_inserted: itemCount,\n      status,\n      message,\n      ts: new Date().toISOString(),\n    },\n  },\n];\n"
+      },
+      "name": "Build Log - Laps",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        176
+      ],
+      "id": "8bb8dc5b-3272-4d37-974c-713c443d48e3"
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        }
+      },
+      "name": "Trigger Hourly",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        -64
+      ],
+      "id": "43b106ea-3c6d-478b-9669-3c83564001f7"
+    },
+    {
+      "parameters": {
+        "url": "https://api.jolpi.ca/ergast/f1/current/circuits.json",
+        "options": {}
+      },
+      "name": "HTTP - Circuits",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        -576
+      ],
+      "id": "be30be13-87cc-4a42-9b96-db44a808e513"
+    },
+    {
+      "parameters": {
+        "functionCode": "const circuits = items[0].json.MRData.CircuitTable.Circuits || [];\nreturn circuits.map(c => ({ json: {\n  circuit_ref: c.circuitId,\n  name: c.circuitName,\n  location: c.Location?.locality || null,\n  country: c.Location?.country || null,\n  lat: parseFloat(c.Location?.lat || 0),\n  lng: parseFloat(c.Location?.long || 0),\n  alt: c.Location?.alt ? parseInt(c.Location.alt) : null\n}}));"
+      },
+      "name": "Transform Circuits",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        -576
+      ],
+      "id": "1f175d8f-3bbb-48aa-8847-4989355f2eeb"
+    },
+    {
+      "parameters": {
+        "url": "https://api.jolpi.ca/ergast/f1/current/drivers.json",
+        "options": {}
+      },
+      "name": "HTTP - Drivers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        -240
+      ],
+      "id": "d74848eb-3770-4950-9b86-52b1fa260759"
+    },
+    {
+      "parameters": {
+        "functionCode": "const drivers = items[0].json.MRData.DriverTable.Drivers || [];\nreturn drivers.map(d => ({ json: {\n  driver_ref: d.driverId,\n  code: d.code || null,\n  forename: d.givenName,\n  surname: d.familyName,\n  nationality: d.nationality,\n  dob: d.dateOfBirth\n}}));"
+      },
+      "name": "Transform Drivers",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        -240
+      ],
+      "id": "9257bf2a-364c-4275-a369-9f6f970aef11"
+    },
+    {
+      "parameters": {
+        "url": "https://api.jolpi.ca/ergast/f1/current/last.json",
+        "options": {}
+      },
+      "name": "HTTP - Races",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        32
+      ],
+      "id": "ed810633-e568-4971-80f8-d8bf3143da1f"
+    },
+    {
+      "parameters": {
+        "functionCode": "const races = items[0].json.MRData.RaceTable.Races || [];\nreturn races.map(r => ({ json: {\n  year: parseInt(r.season),\n  round: parseInt(r.round),\n  name: r.raceName,\n  date: r.date,\n  time: r.time,\n  circuit_ref: r.Circuit?.circuitId || null\n}}));"
+      },
+      "name": "Transform Races",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        32
+      ],
+      "id": "3130f54c-3919-42fb-bb31-cd77156c3267"
+    },
+    {
+      "parameters": {
+        "url": "https://api.jolpi.ca/ergast/f1/current/last/laps.json?limit=2000",
+        "options": {}
+      },
+      "name": "HTTP - Laps",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        320
+      ],
+      "id": "df1f57e0-0d5b-4078-9504-938735756c14"
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🏁 Converter \"1:23.456\" -> milissegundos\nconst convertToMs = (timeStr) => {\n  if (!timeStr) return null;\n  const parts = timeStr.split(':');\n  if (parts.length === 2) {\n    const [min, rest] = parts;\n    const [sec, ms] = rest.split('.');\n    return (parseInt(min) * 60 + parseInt(sec)) * 1000 + parseInt(ms.padEnd(3, '0'));\n  } else if (parts.length === 3) {\n    const [hour, min, rest] = parts;\n    const [sec, ms] = rest.split('.');\n    return ((parseInt(hour) * 3600) + (parseInt(min) * 60) + parseInt(sec)) * 1000 + parseInt(ms.padEnd(3, '0'));\n  }\n  return null;\n};\n\n// 🔹 Extrai os dados principais\nconst races = items[0].json.MRData?.RaceTable?.Races || [];\nconst laps = [];\n\nfor (const race of races) {\n  const raceId = race.round;\n  const raceName = race.raceName;\n  const season = race.season;\n  const circuitId = race.Circuit?.circuitId;\n  const circuitName = race.Circuit?.circuitName;\n  const date = race.date;\n\n  if (!race.Laps) continue;\n\n  for (const lap of race.Laps) {\n    const lapNumber = parseInt(lap.number);\n\n    for (const timing of lap.Timings) {\n      laps.push({\n        json: {\n          round: raceId,\n          season,\n          race_name: raceName,\n          circuit_ref: circuitId,\n          circuit_name: circuitName,\n          date,\n          driver_ref: timing.driverId,\n          lap_number: lapNumber,\n          position: parseInt(timing.position),\n          lap_time: timing.time,\n          milliseconds: convertToMs(timing.time)\n        }\n      });\n    }\n  }\n}\n\nreturn laps;\n"
+      },
+      "name": "Transform Laps",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1392,
+        320
+      ],
+      "id": "1c5de10c-29f4-45d2-bf2a-42c3a293c4d3"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "width": 166
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1984,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "c0965df1-0172-4df1-afa0-26781fbd9ae6",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## ETL process\n",
+        "height": 1376,
+        "width": 1504
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1808,
+        -800
+      ],
+      "typeVersion": 1,
+      "id": "9cff897d-4d23-4735-96c1-f87f8c1660f4",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Log creation\n",
+        "height": 1152,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -656
+      ],
+      "typeVersion": 1,
+      "id": "9a96bbad-8edc-4593-b7db-14aafdd89e35",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eaddcf2b-807f-4f00-af57-5f13762fa342",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        -560
+      ],
+      "id": "58b434fe-5288-455f-8e29-3c381e628eeb",
+      "name": "If",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "f1_circuits",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "circuit_ref",
+              "condition": "eq",
+              "keyValue": "={{ $json.circuit_ref }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "circuit_ref",
+              "fieldValue": "={{$json.circuit_ref}}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{$json.name}}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{$json.location}}"
+            },
+            {
+              "fieldId": "country",
+              "fieldValue": "={{$json.country}}"
+            },
+            {
+              "fieldId": "lat",
+              "fieldValue": "={{$json.lat}}"
+            },
+            {
+              "fieldId": "lng",
+              "fieldValue": "={{$json.lng}}"
+            },
+            {
+              "fieldId": "alt",
+              "fieldValue": "={{$json.alt}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Update Circuits",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -528
+      ],
+      "id": "88357b40-6a81-4328-8a5f-c049aac78ee5",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "f1_drivers",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "driver_ref",
+              "condition": "eq",
+              "keyValue": "={{ $json.driver_ref }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "driver_ref",
+              "fieldValue": "={{$json.driver_ref}}"
+            },
+            {
+              "fieldId": "code",
+              "fieldValue": "={{$json.code}}"
+            },
+            {
+              "fieldId": "forename",
+              "fieldValue": "={{$json.forename}}"
+            },
+            {
+              "fieldId": "surname",
+              "fieldValue": "={{$json.surname}}"
+            },
+            {
+              "fieldId": "nationality",
+              "fieldValue": "={{$json.nationality}}"
+            },
+            {
+              "fieldId": "dob",
+              "fieldValue": "={{$json.dob}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Update Drivers",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -224
+      ],
+      "id": "500089de-8805-444d-a623-948c31cab16d",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "tableId": "f1_races",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "year",
+              "fieldValue": "={{$json.year}}"
+            },
+            {
+              "fieldId": "round",
+              "fieldValue": "={{$json.round}}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{$json.name}}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{$json.date}}"
+            },
+            {
+              "fieldId": "time",
+              "fieldValue": "={{$json.time}}"
+            },
+            {
+              "fieldId": "circuit_ref",
+              "fieldValue": "={{$json.circuit_ref}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Create Races",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        -112
+      ],
+      "id": "83f97a8d-c937-4adb-8605-7eb38f8a03ee",
+      "retryOnFail": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "f1_laps",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "lap_number",
+              "fieldValue": "={{ $('Transform Laps').item.json.lap_number }}"
+            },
+            {
+              "fieldId": "driver_ref",
+              "fieldValue": "={{$json.driver_ref}}"
+            },
+            {
+              "fieldId": "position",
+              "fieldValue": "={{$json.position}}"
+            },
+            {
+              "fieldId": "lap_time",
+              "fieldValue": "={{$json.lap_time}}"
+            },
+            {
+              "fieldId": "milliseconds",
+              "fieldValue": "={{$json.milliseconds}}"
+            },
+            {
+              "fieldId": "season",
+              "fieldValue": "={{$json.season}}"
+            },
+            {
+              "fieldId": "round",
+              "fieldValue": "={{$json.round}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Create Laps",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        208
+      ],
+      "id": "0bab5d88-cd08-4541-80be-ba0e63b7c46a",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eaddcf2b-807f-4f00-af57-5f13762fa342",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1008,
+        -256
+      ],
+      "id": "1cd4dd84-f7cc-42fb-84f2-f743d6b23a0c",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eaddcf2b-807f-4f00-af57-5f13762fa342",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        32
+      ],
+      "id": "d695a52a-8bab-499b-8551-c9584e346c3d",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "tableId": "f1_drivers",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "driver_ref",
+              "fieldValue": "={{$json.driver_ref}}"
+            },
+            {
+              "fieldId": "code",
+              "fieldValue": "={{$json.code}}"
+            },
+            {
+              "fieldId": "forename",
+              "fieldValue": "={{$json.forename}}"
+            },
+            {
+              "fieldId": "surname",
+              "fieldValue": "={{$json.surname}}"
+            },
+            {
+              "fieldId": "nationality",
+              "fieldValue": "={{$json.nationality}}"
+            },
+            {
+              "fieldId": "dob",
+              "fieldValue": "={{$json.dob}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Create Drivers",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        -400
+      ],
+      "id": "5d322e83-2f17-4ab5-9fe8-2fda5ecd4892",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "f1_races",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "year",
+              "condition": "eq",
+              "keyValue": "={{ $json.year }}"
+            },
+            {
+              "keyName": "round",
+              "condition": "eq",
+              "keyValue": "={{ $json.round }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "year",
+              "fieldValue": "={{$json.year}}"
+            },
+            {
+              "fieldId": "round",
+              "fieldValue": "={{$json.round}}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{$json.name}}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{$json.date}}"
+            },
+            {
+              "fieldId": "time",
+              "fieldValue": "={{$json.time}}"
+            },
+            {
+              "fieldId": "circuit_ref",
+              "fieldValue": "={{$json.circuit_ref}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Update Races",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        48
+      ],
+      "id": "9469bb9b-3cdd-4d52-b00a-513070875fe9",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "tableId": "f1_circuits",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "circuit_ref",
+              "fieldValue": "={{ $('Transform Circuits').item.json.circuit_ref }}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{$json.name}}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{$json.location}}"
+            },
+            {
+              "fieldId": "country",
+              "fieldValue": "={{$json.country}}"
+            },
+            {
+              "fieldId": "lat",
+              "fieldValue": "={{$json.lat}}"
+            },
+            {
+              "fieldId": "lng",
+              "fieldValue": "={{$json.lng}}"
+            },
+            {
+              "fieldId": "alt",
+              "fieldValue": "={{$json.alt}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Create Circuits",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        -752
+      ],
+      "id": "3ed1da81-559f-4900-adf6-9c49d55bd6fa",
+      "retryOnFail": false,
+      "waitBetweenTries": 0,
+      "maxTries": null,
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eaddcf2b-807f-4f00-af57-5f13762fa342",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        336
+      ],
+      "id": "3e67d180-d882-40b6-9974-b3f6a47508b0",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "f1_laps",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "season",
+              "condition": "eq",
+              "keyValue": "={{ $json.season }}"
+            },
+            {
+              "keyName": "round",
+              "condition": "eq",
+              "keyValue": "={{ $json.round }}"
+            },
+            {
+              "keyName": "driver_ref",
+              "condition": "eq",
+              "keyValue": "={{ $json.driver_ref }}"
+            },
+            {
+              "keyName": "lap_number",
+              "condition": "eq",
+              "keyValue": "={{ $json.lap_number }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "lap_number",
+              "fieldValue": "={{$json.lap_number}}"
+            },
+            {
+              "fieldId": "driver_ref",
+              "fieldValue": "={{$json.driver_ref}}"
+            },
+            {
+              "fieldId": "position",
+              "fieldValue": "={{$json.position}}"
+            },
+            {
+              "fieldId": "lap_time",
+              "fieldValue": "={{$json.lap_time}}"
+            },
+            {
+              "fieldId": "milliseconds",
+              "fieldValue": "={{$json.milliseconds}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase - Update Laps",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        384
+      ],
+      "id": "71ef6f8a-1473-4447-a0c9-efe02bec6888",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "tableId": "etl_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "process_name",
+              "fieldValue": "={{ $json.process_name }}"
+            },
+            {
+              "fieldId": "rows_inserted",
+              "fieldValue": "={{ $json.rows_inserted }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $json.message }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $json.ts }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -64
+      ],
+      "id": "cd581720-209e-418d-b145-ef07f8567fc7",
+      "name": "Insert Circuits log",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QPjtt75lTNLbrp6H",
+          "name": "João"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Build Log - Circuits": {
+      "main": [
+        [
+          {
+            "node": "Insert Circuits log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log - Drivers": {
+      "main": [
+        [
+          {
+            "node": "Insert Circuits log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log - Races": {
+      "main": [
+        [
+          {
+            "node": "Insert Circuits log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log - Laps": {
+      "main": [
+        [
+          {
+            "node": "Insert Circuits log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Hourly": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Circuits",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Drivers",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Races",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Laps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Circuits": {
+      "main": [
+        [
+          {
+            "node": "Transform Circuits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Circuits": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Create Circuits",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Drivers": {
+      "main": [
+        [
+          {
+            "node": "Transform Drivers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Drivers": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase - Create Drivers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Races": {
+      "main": [
+        [
+          {
+            "node": "Transform Races",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Races": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase - Create Races",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Laps": {
+      "main": [
+        [
+          {
+            "node": "Transform Laps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Laps": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase - Create Laps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase - Update Circuits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Update Circuits": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Supabase - Update Drivers": {
+      "main": [
+        []
+      ]
+    },
+    "Supabase - Create Races": {
+      "main": [
+        [
+          {
+            "node": "Build Log - Races",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Log - Races",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Create Laps": {
+      "main": [
+        [
+          {
+            "node": "Build Log - Laps",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Log - Laps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase - Update Drivers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase - Update Races",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Create Drivers": {
+      "main": [
+        [
+          {
+            "node": "Build Log - Drivers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Log - Drivers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Update Races": {
+      "main": [
+        []
+      ]
+    },
+    "Supabase - Create Circuits": {
+      "main": [
+        [
+          {
+            "node": "Build Log - Circuits",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Log - Circuits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase - Update Laps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Update Laps": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "443656f437c881942fb81e87877cd419cb3d18535fc919d8a2fddcbd1692e546"
+  }
+}

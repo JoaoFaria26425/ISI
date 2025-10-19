@@ -1,0 +1,64 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.ac_laps (
+  id integer NOT NULL DEFAULT nextval('ac_laps_id_seq'::regclass),
+  player_name character varying,
+  car character varying,
+  circuit character varying,
+  lap_time_ms integer,
+  session_time timestamp without time zone DEFAULT now(),
+  CONSTRAINT ac_laps_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.etl_log (
+  id integer NOT NULL DEFAULT nextval('etl_log_id_seq'::regclass),
+  created_at timestamp with time zone,
+  process_name character varying,
+  rows_inserted integer,
+  status character varying,
+  message text,
+  CONSTRAINT etl_log_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.f1_circuits (
+  circuit_id integer NOT NULL DEFAULT nextval('f1_circuits_circuit_id_seq'::regclass),
+  circuit_ref character varying UNIQUE,
+  name character varying,
+  location character varying,
+  country character varying,
+  lat numeric,
+  lng numeric,
+  alt integer,
+  CONSTRAINT f1_circuits_pkey PRIMARY KEY (circuit_id)
+);
+CREATE TABLE public.f1_drivers (
+  driver_id integer NOT NULL DEFAULT nextval('f1_drivers_driver_id_seq'::regclass),
+  driver_ref character varying UNIQUE,
+  code character varying,
+  forename character varying,
+  surname character varying,
+  nationality character varying,
+  dob date,
+  CONSTRAINT f1_drivers_pkey PRIMARY KEY (driver_id)
+);
+CREATE TABLE public.f1_laps (
+  lap_id integer NOT NULL DEFAULT nextval('f1_laps_lap_id_seq'::regclass),
+  lap_number integer,
+  position integer,
+  lap_time character varying,
+  milliseconds integer,
+  season integer,
+  round integer,
+  driver_ref character varying,
+  CONSTRAINT f1_laps_pkey PRIMARY KEY (lap_id),
+  CONSTRAINT fk_laps_drivers_driver_ref FOREIGN KEY (driver_ref) REFERENCES public.f1_drivers(driver_ref)
+);
+CREATE TABLE public.f1_races (
+  race_id integer NOT NULL DEFAULT nextval('f1_races_race_id_seq'::regclass),
+  year integer,
+  round integer,
+  name character varying,
+  date date,
+  time time without time zone,
+  circuit_ref character varying,
+  CONSTRAINT f1_races_pkey PRIMARY KEY (race_id)
+);
